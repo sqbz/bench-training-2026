@@ -1,14 +1,1 @@
-# Day 2
-
-## Overview
-Brief summary of what you worked on for Day 2.
-
-## Goals
-- 
-
-## Notes
-- 
-
-## Links / Resources
-- 
-
+- **What’s the difference between a list and a dict? When do you use each?** A list is an ordered collection where you access items by position (index), so I use it when order matters or I’m working through a sequence. A dict stores key → value pairs, so I use it when I want named fields, fast lookup by a meaningful key, or structured records.
