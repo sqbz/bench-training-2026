@@ -1,3 +1,8 @@
 .DS_Store
 **/.DS_Store
 
+tasks.json
+**/tasks.json
+__pycache__/
+**/__pycache__/
+
