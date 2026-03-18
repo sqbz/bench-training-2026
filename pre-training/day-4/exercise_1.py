@@ -55,6 +55,7 @@ def main():
     r2, repos = get_json(repos_url)
     if r2 is None:
         print("Network error: could not fetch repos.", file=sys.stderr)
+
         return 1
 
     if r2.status_code == 403:
