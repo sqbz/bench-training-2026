@@ -1,3 +1,3 @@
 - **What did you build?** I built three small Python programs: variables + operators, a grading function used in loops, and a multiplication table generator with input validation.
-- **What tripped you up?** The main thing that tripped me up was getting the input validation and clean formatting right without overcomplicating it.
+- **What tripped you up?** The main thing that tripped me up was getting the input validation and clean formatting right without complicating it.
 - **What would you do differently?** Next time I would write and test the smallest version first, then improve the formatting once it works.
