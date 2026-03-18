@@ -27,5 +27,5 @@ description: Overcast
 
 ## Hardest part
 
-The hardest part was reading the raw JSON carefully and figuring out the exact keys and nesting (`results[0]` from geocoding, then `current` fields from the weather response, and `stargazers_count` from the GitHub repos list) before trying to extract values.
+The hardest part was figuring out “where the data lives” in the API response. The geocoding API gives a list of matches, so I had to grab the first one to get latitude/longitude, and then the weather API puts the actual numbers under `current`. For GitHub, each repo has its own `stargazers_count`, so I had to sort the repos by that field to get the top 5.
 
