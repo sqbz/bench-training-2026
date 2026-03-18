@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 
 
@@ -5,7 +7,8 @@ def pct(part, whole):
     return (part / whole) * 100
 
 
-df = pd.read_csv("pre-training/day-5/titanic.csv")
+csv_path = os.path.join(os.path.dirname(__file__), "titanic.csv")
+df = pd.read_csv(csv_path)
 total_rows = len(df)
 
 print("01) Survived vs didn't (counts and %)")
