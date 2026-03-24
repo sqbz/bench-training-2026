@@ -7,4 +7,6 @@ __pycache__/
 **/__pycache__/
 .venv/
 **/.venv/
+budget.db
+**/budget.db
 
