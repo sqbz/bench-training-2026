@@ -1,10 +1,11 @@
 import json
 import sys
 
-import requests
+import requests  # type: ignore[import-untyped]
+from typing import Any, Optional
 
 
-def get_json(url):
+def get_json(url: str) -> tuple[Optional[requests.Response], Optional[Any]]:
     try:
         r = requests.get(url, timeout=15)
         return r, r.json()
@@ -14,7 +15,7 @@ def get_json(url):
         return r, None
 
 
-def print_top_repos(repos):
+def print_top_repos(repos: list[dict[str, Any]]) -> None:
     repos = sorted(repos, key=lambda repo: repo.get("stargazers_count", 0), reverse=True)[:5]
     for repo in repos:
         name = repo.get("name")
@@ -23,7 +24,7 @@ def print_top_repos(repos):
         print(f"- {name} | ⭐ {stars} | {language}")
 
 
-def main():
+def main() -> int:
     username = "octocat"
     if len(sys.argv) >= 2 and sys.argv[1].strip():
         username = sys.argv[1].strip()

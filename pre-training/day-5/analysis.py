@@ -3,7 +3,7 @@ import os
 import pandas as pd
 
 
-def pct(part, whole):
+def pct(part: float, whole: float) -> float:
     return (part / whole) * 100
 
 
