@@ -1,4 +1,4 @@
-def grade_classifier(score):
+def grade_classifier(score: int) -> str:
     if score >= 90:
         return "Distinction"
     if score >= 60:

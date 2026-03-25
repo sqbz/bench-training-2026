@@ -3,28 +3,29 @@ import json
 import os
 import sys
 from datetime import datetime
+from typing import Any, Optional
 
 
 class Task:
     VALID_STATUSES = ("todo", "done")
 
-    def __init__(self, task_id, title, status, created_at):
+    def __init__(self, task_id: int, title: str, status: str, created_at: str) -> None:
         self.id = int(task_id)
         self.title = str(title)
         self.status = status
         self.created_at = created_at
 
     @staticmethod
-    def now_iso():
+    def now_iso() -> str:
         return datetime.now().isoformat(timespec="seconds")
 
     @classmethod
-    def next_id(cls, tasks):
+    def next_id(cls, tasks: list["Task"]) -> int:
         if not tasks:
             return 1
         return max(t.id for t in tasks) + 1
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         return {
             "id": self.id,
             "title": self.title,
@@ -33,9 +34,12 @@ class Task:
         }
 
     @classmethod
-    def from_dict(cls, data):
-        task_id = data.get("id")
-        title = data.get("title")
+    def from_dict(cls, data: dict[str, Any]) -> "Task":
+        task_id_raw = data.get("id")
+        if task_id_raw is None:
+            task_id_raw = 0
+        task_id = int(task_id_raw)
+        title = str(data.get("title"))
         status = data.get("status", "todo")
         created_at = data.get("created_at")
         if status not in cls.VALID_STATUSES:
@@ -46,26 +50,26 @@ class Task:
 
 
 class BaseTaskManager:
-    def add_task(self, title):
+    def add_task(self, title: str) -> Task:
         raise NotImplementedError
 
-    def complete_task(self, task_id):
+    def complete_task(self, task_id: int) -> Optional[Task]:
         raise NotImplementedError
 
-    def list_tasks(self, status_filter=None):
+    def list_tasks(self, status_filter: Optional[str] = None) -> list[Task]:
         raise NotImplementedError
 
-    def delete_task(self, task_id):
+    def delete_task(self, task_id: int) -> bool:
         raise NotImplementedError
 
 
 class TaskManager(BaseTaskManager):
-    def __init__(self, json_path):
+    def __init__(self, json_path: str) -> None:
         self.json_path = json_path
-        self.tasks = []
+        self.tasks: list[Task] = []
         self.load()
 
-    def load(self):
+    def load(self) -> None:
         if not os.path.exists(self.json_path):
             self.tasks = []
             return
@@ -97,26 +101,26 @@ class TaskManager(BaseTaskManager):
                 loaded.append(Task.from_dict(item))
         self.tasks = loaded
 
-    def save(self):
+    def save(self) -> None:
         data = [t.to_dict() for t in self.tasks]
         with open(self.json_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
 
-    def add_task(self, title):
+    def add_task(self, title: str) -> Task:
         task_id = Task.next_id(self.tasks)
         task = Task(task_id, title, "todo", Task.now_iso())
         self.tasks.append(task)
         self.save()
         return task
 
-    def _find_task(self, task_id):
+    def _find_task(self, task_id: int) -> Optional[Task]:
         task_id = int(task_id)
         for t in self.tasks:
             if t.id == task_id:
                 return t
         return None
 
-    def complete_task(self, task_id):
+    def complete_task(self, task_id: int) -> Optional[Task]:
         task = self._find_task(task_id)
         if not task:
             return None
@@ -124,7 +128,7 @@ class TaskManager(BaseTaskManager):
         self.save()
         return task
 
-    def delete_task(self, task_id):
+    def delete_task(self, task_id: int) -> bool:
         task = self._find_task(task_id)
         if not task:
             return False
@@ -132,13 +136,13 @@ class TaskManager(BaseTaskManager):
         self.save()
         return True
 
-    def list_tasks(self, status_filter=None):
+    def list_tasks(self, status_filter: Optional[str] = None) -> list[Task]:
         if status_filter in Task.VALID_STATUSES:
             return [t for t in self.tasks if t.status == status_filter]
         return list(self.tasks)
 
 
-def print_tasks(tasks):
+def print_tasks(tasks: list[Task]) -> None:
     if not tasks:
         print("No tasks found.")
         return
@@ -148,7 +152,7 @@ def print_tasks(tasks):
         print(f"{t.id:>2} | {t.status:<6} | {t.created_at:<19} | {t.title}")
 
 
-def build_parser():
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="tasks.py")
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -167,23 +171,23 @@ def build_parser():
     return parser
 
 
-def main():
+def main() -> int:
     json_path = os.path.join(os.path.dirname(__file__), "tasks.json")
     manager = TaskManager(json_path)
     parser = build_parser()
     args = parser.parse_args()
 
     if args.command == "add":
-        task = manager.add_task(args.title)
-        print(f"Added task {task.id}: {task.title}")
+        added_task = manager.add_task(args.title)
+        print(f"Added task {added_task.id}: {added_task.title}")
         return 0
 
     if args.command == "done":
-        task = manager.complete_task(args.id)
-        if not task:
+        completed_task = manager.complete_task(args.id)
+        if not completed_task:
             print(f"Error: no task found with id {args.id}", file=sys.stderr)
             return 1
-        print(f"Completed task {task.id}: {task.title}")
+        print(f"Completed task {completed_task.id}: {completed_task.title}")
         return 0
 
     if args.command == "delete":

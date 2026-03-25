@@ -1,7 +1,8 @@
 import json
 import sys
 
-import requests
+import requests  # type: ignore[import-untyped]
+from typing import Any, Optional
 
 
 WMO_WEATHER_CODES = {
@@ -27,7 +28,7 @@ WMO_WEATHER_CODES = {
 }
 
 
-def get_json(url, params=None):
+def get_json(url: str, params: Optional[dict[str, Any]] = None) -> tuple[Optional[requests.Response], Optional[Any]]:
     try:
         r = requests.get(url, params=params, timeout=15)
         return r, r.json()
@@ -37,11 +38,11 @@ def get_json(url, params=None):
         return r, None
 
 
-def c_to_f(c):
+def c_to_f(c: float) -> float:
     return (c * 9 / 5) + 32
 
 
-def main():
+def main() -> int:
     city = "Karachi"
     if len(sys.argv) >= 2 and sys.argv[1].strip():
         city = sys.argv[1].strip()
@@ -70,6 +71,9 @@ def main():
     country = place.get("country")
     latitude = place.get("latitude")
     longitude = place.get("longitude")
+    if latitude is None or longitude is None:
+        print("Unexpected geocoding result (missing coordinates).", file=sys.stderr)
+        return 1
 
     weather_url = "https://api.open-meteo.com/v1/forecast"
     r2, weather = get_json(
@@ -98,6 +102,9 @@ def main():
     temp_c = current.get("temperature_2m")
     wind_kmh = current.get("wind_speed_10m")
     code = current.get("weather_code")
+    if temp_c is None or wind_kmh is None or code is None:
+        print("Unexpected weather response (missing current fields).", file=sys.stderr)
+        return 1
     description = WMO_WEATHER_CODES.get(code, "Unknown")
 
     print("WEATHER")
